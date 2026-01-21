@@ -2,6 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(gh pr create:*)",
+      "Bash(git add:*)",
+      "Bash(git push --force-with-lease)",
+      "Bash(git rebase --continue)",
       "Bash(git remote:*)",
       "Bash(uv run -- /Users/luca/.claude/plugins/cache/anthropic-agent-skills/example-skills/69c0b1a06741/skills/skill-creator/scripts/init_skill.py:*)",
       "Bash(uv run --with=pyyaml -- /Users/luca/.claude/plugins/cache/anthropic-agent-skills/example-skills/69c0b1a06741/skills/skill-creator/scripts/package_skill.py:*)",
@@ -10,9 +13,7 @@
       "WebFetch(domain:developers.openai.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:skills.sh)",
-      "WebFetch(domain:support.claude.com)",
-      "Bash(git -C /Users/luca/dev/projs/skills.update-readme add:*)",
-      "Bash(git -C /Users/luca/dev/projs/skills.update-readme rebase --continue)"
+      "WebFetch(domain:support.claude.com)"
     ]
   },
   "enabledPlugins": {
