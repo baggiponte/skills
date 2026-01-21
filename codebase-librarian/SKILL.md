@@ -1,25 +1,13 @@
 ---
 name: codebase-librarian
-description: Create a comprehensive inventory of a codebase. Map structure, entry points, services, infrastructure, domain models, and data flows. Pure documentation—no opinions or recommendations.
+description: Create a comprehensive inventory of a codebase. Map structure, entry points, services, infrastructure, domain models, and data flows. Pure documentation—no opinions or recommendations. Use when onboarding to an unfamiliar codebase, documenting existing architecture before changes, preparing for architecture reviews or migration planning, or creating a reference for the team. Triggers on requests like "map this codebase", "document the architecture", "create an inventory", or "what does this codebase contain".
 ---
 
 # Codebase Librarian
 
-## Overview
+**Persona**: Senior Software Engineer as Librarian. Observe and catalog, never suggest. Like a skilled archivist mapping a new collection—thorough, neutral, comprehensive. Document what IS, not what SHOULD BE. No opinions, no improvements, no judgments. Pure inventory.
 
-**Persona: Senior Software Engineer as Librarian**
-
-*Mindset: Observe and catalog, never suggest. Like a skilled archivist mapping a new collection—thorough, neutral, comprehensive. Your job is to understand and document what IS, not what SHOULD BE. No opinions, no improvements, no judgments. Pure inventory.*
-
-This skill produces a comprehensive inventory of a codebase. Use it when you need to:
-- Onboard to an unfamiliar codebase
-- Document existing architecture before making changes
-- Prepare for an architecture review or migration planning
-- Create a reference for the team
-
-The output is a structured markdown document cataloging everything that exists.
-
-### Output
+## Output
 
 **Ask the user for an output path** (e.g., `./docs/inventory.md` or `./architecture/inventory.md`).
 
@@ -34,15 +22,15 @@ Write findings as a single markdown file with all sections below.
 **Investigate**:
 - Root directory structure (top-level folders and their apparent purpose)
 - Language(s) and runtime versions
-- Build system and scripts (`package.json` scripts, `Makefile`, `build.gradle`, etc.)
-- Dependency manifest (`package.json`, `go.mod`, `requirements.txt`, `Cargo.toml`, `pom.xml`)
+- Build system and scripts (`Makefile`, `pyproject.toml` scripts, `setup.py`, etc.)
+- Dependency manifest (`pyproject.toml`, `requirements.txt`, `setup.py`, `go.mod`, `Cargo.toml`)
 - Configuration files (`.env.example`, `config/`, environment-specific files)
 - Documentation (`README.md`, `docs/`, `ARCHITECTURE.md`, `CONTRIBUTING.md`)
 
 **Search patterns**:
 ```
 README*, ARCHITECTURE*, CONTRIBUTING*
-package.json, go.mod, requirements.txt, Cargo.toml, pom.xml, build.gradle
+pyproject.toml, requirements.txt, setup.py, go.mod, Cargo.toml
 Makefile, Dockerfile, docker-compose*
 .env.example, config/, settings/
 ```
@@ -68,10 +56,10 @@ Makefile, Dockerfile, docker-compose*
 **Search patterns**:
 ```
 routes/, controllers/, handlers/, api/
-*.resolver.ts, *_handler.*, *_controller.*
-cmd/, cli/, commands/
-workers/, jobs/, queues/, consumers/
-cron*, scheduler*, tasks/
+*_handler.py, *_controller.py, views.py, endpoints.py
+cli/, commands/, __main__.py
+workers/, jobs/, queues/, consumers/, tasks/
+celery*, scheduler*, cron*
 ```
 
 **Record**: For each entry point type, list the files and what triggers them.
@@ -92,14 +80,14 @@ cron*, scheduler*, tasks/
 **Search patterns**:
 ```
 services/, modules/, domains/, features/, packages/
-*Service.*, *Manager.*, *Handler.*
+*_service.py, *_manager.py, *_handler.py
 internal/, core/, shared/, common/, lib/
 ```
 
 **For each service, document**:
 | Service | Location | Responsibility | Dependencies | Dependents |
 |---------|----------|----------------|--------------|------------|
-| UserService | `src/services/user/` | User CRUD, auth | Database, EmailService | OrderService, AuthController |
+| UserService | `src/services/user.py` | User CRUD, auth | Database, EmailService | OrderService, AuthHandler |
 
 ---
 
@@ -141,15 +129,15 @@ database/, db/, repositories/, models/
 cache/, redis/, memcache/
 queue/, messaging/, events/, pubsub/
 clients/, integrations/, external/, adapters/
-*Client.*, *Adapter.*, *Gateway.*, *Provider.*
+*_client.py, *_adapter.py, *_gateway.py, *_provider.py
 ```
 
 **For each infrastructure component, document**:
 | Component | Type | Location | How Accessed | Used By |
 |-----------|------|----------|--------------|---------|
-| PostgreSQL | Database | `src/db/` | Sequelize ORM | UserRepo, OrderRepo |
-| Stripe | Payment API | `src/clients/stripe.ts` | Direct SDK | PaymentService |
-| Redis | Cache | `src/cache/redis.ts` | ioredis client | SessionService, RateLimiter |
+| PostgreSQL | Database | `src/db/` | SQLAlchemy ORM | UserRepo, OrderRepo |
+| Stripe | Payment API | `src/clients/stripe.py` | Direct SDK | PaymentService |
+| Redis | Cache | `src/cache/redis.py` | redis-py client | SessionService, RateLimiter |
 
 ---
 
@@ -168,15 +156,15 @@ clients/, integrations/, external/, adapters/
 **Search patterns**:
 ```
 models/, entities/, domain/, core/
-types/, interfaces/, schemas/
-*Entity.*, *Model.*, *Aggregate.*
-events/, domain-events/
+types/, schemas/, dataclasses/
+*_entity.py, *_model.py, *_aggregate.py
+events/, domain_events/
 ```
 
 **For each domain concept, document**:
 | Entity | Location | Key Fields | Relationships | Business Rules |
 |--------|----------|------------|---------------|----------------|
-| Order | `src/models/order.ts` | id, status, total, userId | hasMany LineItems, belongsTo User | Status transitions, pricing |
+| Order | `src/models/order.py` | id, status, total, user_id | has_many LineItems, belongs_to User | Status transitions, pricing |
 
 ---
 
@@ -192,13 +180,13 @@ events/, domain-events/
 **For each flow, document**:
 ```
 Flow: Create Order
-1. POST /orders → OrderController.create (routes/orders.ts:24)
-2. → OrderService.createOrder (services/order.ts:45)
-3. → validates input (services/order.ts:52)
-4. → OrderRepository.save (repositories/order.ts:30)
-5. → Sequelize INSERT (models/order.ts)
-6. → emit OrderCreated event (services/order.ts:78)
-7. → EmailService.sendConfirmation (services/email.ts:15)
+1. POST /orders → create_order (api/orders.py:24)
+2. → OrderService.create_order (services/order.py:45)
+3. → validates input (services/order.py:52)
+4. → OrderRepository.save (repositories/order.py:30)
+5. → SQLAlchemy INSERT (models/order.py)
+6. → emit OrderCreated event (services/order.py:78)
+7. → EmailService.send_confirmation (services/email.py:15)
 8. ← return order DTO
 ```
 
@@ -242,9 +230,9 @@ Write the final inventory document:
 
 | Type | Location | Count | Notes |
 |------|----------|-------|-------|
-| HTTP Routes | `routes/*.ts` | 24 | Express router |
-| Background Workers | `workers/*.ts` | 3 | Bull queue |
-| CLI Commands | `cmd/` | 5 | Cobra |
+| HTTP Routes | `api/*.py` | 24 | FastAPI router |
+| Background Workers | `workers/*.py` | 3 | Celery tasks |
+| CLI Commands | `cli/` | 5 | Click/Typer |
 
 ## Services
 
