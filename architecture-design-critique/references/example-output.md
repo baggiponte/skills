@@ -5,41 +5,41 @@ A completed critique for a hypothetical e-commerce codebase.
 ## Architectural Inventory (Phase 1 Summary)
 
 **Project Overview**
-- Language/Framework: Node.js 18 + Express + TypeScript
-- Build System: npm scripts, tsc
-- Key Dependencies: Sequelize, ioredis, stripe-node, nodemailer
+- Language/Framework: Python 3.11 + FastAPI
+- Build System: uv, Makefile
+- Key Dependencies: SQLAlchemy, redis-py, stripe, httpx
 
 **Entry Points**
 | Type | Location | Count |
 |------|----------|-------|
-| HTTP Routes | `routes/*.ts` | 24 endpoints |
-| Background Workers | `workers/*.ts` | 3 job processors |
-| Cron Jobs | `cron/daily.ts` | 2 scheduled tasks |
+| HTTP Routes | `api/*.py` | 24 endpoints |
+| Background Workers | `workers/*.py` | 3 Celery tasks |
+| Cron Jobs | `tasks/daily.py` | 2 scheduled tasks |
 
 **Services**
 | Service | Location | Dependencies |
 |---------|----------|--------------|
-| UserService | `services/user.ts` | UserRepo, EmailService |
-| OrderService | `services/order.ts` | OrderRepo, PaymentService, InventoryService |
-| PaymentService | `services/payment.ts` | Stripe client |
+| UserService | `services/user.py` | UserRepo, EmailService |
+| OrderService | `services/order.py` | OrderRepo, PaymentService, InventoryService |
+| PaymentService | `services/payment.py` | Stripe client |
 
 **Infrastructure**
 | Component | Type | Access Pattern |
 |-----------|------|----------------|
-| PostgreSQL | Database | Sequelize ORM, direct connection |
-| Redis | Cache | ioredis client, no abstraction |
+| PostgreSQL | Database | SQLAlchemy ORM, direct connection |
+| Redis | Cache | redis-py client, no abstraction |
 | Stripe | Payment API | Direct SDK calls in PaymentService |
-| SendGrid | Email | nodemailer transport in EmailService |
+| SendGrid | Email | httpx transport in EmailService |
 
 **Domain Model**
 | Entity | Location | Relationships |
 |--------|----------|---------------|
-| User | `models/user.ts` | hasMany Orders |
-| Order | `models/order.ts` | belongsTo User, hasMany LineItems |
-| Product | `models/product.ts` | hasMany LineItems |
-| Cart | `models/cart.ts` | belongsTo User, hasMany CartItems |
+| User | `models/user.py` | has_many Orders |
+| Order | `models/order.py` | belongs_to User, has_many LineItems |
+| Product | `models/product.py` | has_many LineItems |
+| Cart | `models/cart.py` | belongs_to User, has_many CartItems |
 
-**Observed Patterns**: Active Record via Sequelize, service classes for orchestration, no repository layer, direct infrastructure access from services.
+**Observed Patterns**: Active Record via SQLAlchemy, service classes for orchestration, no repository layer, direct infrastructure access from services.
 
 ## Assessment (Phase 2 Summary)
 
@@ -47,7 +47,7 @@ A completed critique for a hypothetical e-commerce codebase.
 
 This e-commerce codebase has a solid foundation with clear service boundaries and proper separation of background jobs from request handling. The team has established reasonable conventions that have served them well.
 
-However, the architecture shows signs of organic growth without consistent application of dependency inversion principles. Domain logic has leaked into infrastructure concerns—pricing calculations live inside ORM hooks, and payment processing is tightly coupled to Stripe's SDK. These issues don't cause immediate pain, but they're accumulating technical debt that will slow feature development and make testing increasingly difficult.
+However, the architecture shows signs of organic growth without consistent application of dependency inversion principles. Domain logic has leaked into infrastructure concerns—pricing calculations live inside ORM event hooks, and payment processing is tightly coupled to Stripe's SDK. These issues don't cause immediate pain, but they're accumulating technical debt that will slow feature development and make testing increasingly difficult.
 
 The thesis: *This codebase handles feature organization well, but struggles with clean separation between domain logic and infrastructure dependencies.*
 
@@ -58,24 +58,24 @@ The thesis: *This codebase handles feature organization well, but struggles with
 
 **Detailed Findings**
 
-### Finding 1: Pricing Logic Embedded in ORM Hooks
+### Finding 1: Pricing Logic Embedded in ORM Events
 
 **Category**: Boundary Violation
 
 **The Problem**
-The `Order` model contains pricing calculation logic inside Sequelize lifecycle hooks. When an order is saved, the `beforeSave` hook recalculates totals, applies discounts, and computes tax. This mixes pure business rules with persistence mechanics.
+The `Order` model contains pricing calculation logic inside SQLAlchemy event listeners. When an order is saved, the `before_flush` event recalculates totals, applies discounts, and computes tax. This mixes pure business rules with persistence mechanics.
 
 **Why It Matters**
 - Cannot unit test pricing without a database connection
-- Pricing rules are invisible—hidden inside ORM hooks rather than explicit domain code
-- Changing pricing logic requires understanding Sequelize hook execution order
+- Pricing rules are invisible—hidden inside ORM events rather than explicit domain code
+- Changing pricing logic requires understanding SQLAlchemy event execution order
 
 **Evidence**
-- `models/order.ts:45-78` - `beforeSave` hook with 30+ lines of pricing logic
-- `models/order.ts:82` - Tax calculation references `process.env.TAX_RATE` directly
+- `models/order.py:45-78` - `before_flush` listener with 30+ lines of pricing logic
+- `models/order.py:82` - Tax calculation references `os.environ["TAX_RATE"]` directly
 
 **Suggested Direction**
-Extract a pure `PricingCalculator` class that takes order data and returns computed totals. Hook simply calls calculator and assigns results.
+Extract a pure `PricingCalculator` class that takes order data and returns computed totals. Event simply calls calculator and assigns results.
 
 ---
 
@@ -92,8 +92,8 @@ Extract a pure `PricingCalculator` class that takes order data and returns compu
 - Stripe version upgrades have unbounded blast radius
 
 **Evidence**
-- `services/cart.ts:112-145` - Direct `stripe.paymentIntents.create()` calls
-- `services/cart.ts:167` - Catches `Stripe.errors.CardError` specifically
+- `services/cart.py:112-145` - Direct `stripe.PaymentIntent.create()` calls
+- `services/cart.py:167` - Catches `stripe.error.CardError` specifically
 
 **Suggested Direction**
 Introduce `PaymentGateway` port interface. Current Stripe logic becomes `StripePaymentAdapter`.
@@ -110,54 +110,59 @@ The quick wins are independent and can be tackled in any order. Medium-term item
 
 ### 1. Extract PricingCalculator from Order Model
 
-**Problem**: Pricing logic buried in ORM hooks makes testing require database setup.
+**Problem**: Pricing logic buried in ORM events makes testing require database setup.
 **Impact**: Enables unit testing of pricing rules; makes pricing logic explicit and auditable.
 
 **Implementation Approach**
 
 1. Create the pricing domain module:
-   ```typescript
-   // domain/pricing/calculator.ts
-   interface OrderLineItem {
-     unitPrice: number;
-     quantity: number;
-     discountPercent?: number;
-   }
+   ```python
+   # domain/pricing/calculator.py
+   from dataclasses import dataclass
+   from decimal import Decimal
 
-   interface PricingResult {
-     subtotal: number;
-     discount: number;
-     tax: number;
-     total: number;
-   }
+   @dataclass
+   class OrderLineItem:
+       unit_price: Decimal
+       quantity: int
+       discount_percent: Decimal = Decimal("0")
 
-   export function calculateOrderTotal(
-     items: OrderLineItem[],
-     taxRate: number
-   ): PricingResult {
-     const subtotal = items.reduce((sum, item) =>
-       sum + (item.unitPrice * item.quantity), 0);
-     // ... rest of logic extracted from hook
-   }
+   @dataclass
+   class PricingResult:
+       subtotal: Decimal
+       discount: Decimal
+       tax: Decimal
+       total: Decimal
+
+   def calculate_order_total(
+       items: list[OrderLineItem],
+       tax_rate: Decimal
+   ) -> PricingResult:
+       subtotal = sum(
+           item.unit_price * item.quantity for item in items
+       )
+       # ... rest of logic extracted from event
    ```
 
-2. Update the Order model hook:
-   ```typescript
-   // models/order.ts
-   import { calculateOrderTotal } from '../domain/pricing/calculator';
+2. Update the Order model event:
+   ```python
+   # models/order.py
+   from domain.pricing.calculator import calculate_order_total
 
-   Order.beforeSave((order) => {
-     const result = calculateOrderTotal(order.lineItems, config.taxRate);
-     Object.assign(order, result);
-   });
+   @event.listens_for(Order, "before_flush")
+   def calculate_totals(mapper, connection, order):
+       result = calculate_order_total(order.line_items, config.tax_rate)
+       order.subtotal = result.subtotal
+       order.tax = result.tax
+       order.total = result.total
    ```
 
 **Files to Modify**
-- `domain/pricing/calculator.ts` (new)
-- `models/order.ts:45-78` (simplify hook)
+- `domain/pricing/calculator.py` (new)
+- `models/order.py:45-78` (simplify event)
 
 **Verification**
-- Add unit tests for `calculateOrderTotal` with various scenarios
+- Add unit tests for `calculate_order_total` with various scenarios
 - Existing integration tests should pass unchanged
 
 ---
@@ -170,35 +175,70 @@ The quick wins are independent and can be tackled in any order. Medium-term item
 **Implementation Approach**
 
 1. Define the port:
-   ```typescript
-   // domain/ports/payment-gateway.ts
-   export interface PaymentGateway {
-     createPaymentIntent(amount: number, currency: string): Promise<PaymentIntent>;
-     capturePayment(intentId: string): Promise<PaymentResult>;
-     refund(chargeId: string, amount?: number): Promise<RefundResult>;
-   }
+   ```python
+   # domain/ports/payment_gateway.py
+   from typing import Protocol
+   from dataclasses import dataclass
+   from decimal import Decimal
+
+   @dataclass
+   class PaymentIntent:
+       id: str
+       client_secret: str
+
+   @dataclass
+   class PaymentResult:
+       success: bool
+       charge_id: str
+
+   @dataclass
+   class RefundResult:
+       success: bool
+       refund_id: str
+
+   class PaymentGateway(Protocol):
+       def create_payment_intent(
+           self, amount: Decimal, currency: str
+       ) -> PaymentIntent: ...
+
+       def capture_payment(self, intent_id: str) -> PaymentResult: ...
+
+       def refund(
+           self, charge_id: str, amount: Decimal | None = None
+       ) -> RefundResult: ...
    ```
 
 2. Implement Stripe adapter:
-   ```typescript
-   // infrastructure/stripe-payment-adapter.ts
-   export class StripePaymentAdapter implements PaymentGateway {
-     constructor(private stripe: Stripe) {}
+   ```python
+   # infrastructure/stripe_adapter.py
+   import stripe
+   from domain.ports.payment_gateway import (
+       PaymentGateway, PaymentIntent, PaymentResult, RefundResult
+   )
 
-     async createPaymentIntent(amount: number, currency: string) {
-       const intent = await this.stripe.paymentIntents.create({ amount, currency });
-       return { id: intent.id, clientSecret: intent.client_secret };
-     }
-     // ... other methods
-   }
+   class StripePaymentAdapter(PaymentGateway):
+       def __init__(self, api_key: str):
+           self._client = stripe
+           self._client.api_key = api_key
+
+       def create_payment_intent(
+           self, amount: Decimal, currency: str
+       ) -> PaymentIntent:
+           intent = self._client.PaymentIntent.create(
+               amount=int(amount * 100), currency=currency
+           )
+           return PaymentIntent(
+               id=intent.id, client_secret=intent.client_secret
+           )
+       # ... other methods
    ```
 
 3. Inject into CartService constructor and update calls.
 
 **Files to Modify**
-- `domain/ports/payment-gateway.ts` (new)
-- `infrastructure/stripe-payment-adapter.ts` (new)
-- `services/cart.ts:112-167` (use injected gateway)
+- `domain/ports/payment_gateway.py` (new)
+- `infrastructure/stripe_adapter.py` (new)
+- `services/cart.py:112-167` (use injected gateway)
 
 **Medium-term**
 
