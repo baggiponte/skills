@@ -2,22 +2,45 @@
 # /// script
 # dependencies = []
 # ///
+"""Generate the skills table in README.md from SKILL.md frontmatter."""
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
+
+TABLE_START = "<!-- SKILLS_TABLE_START -->"
+TABLE_END = "<!-- SKILLS_TABLE_END -->"
+
+
+def get_repo_name() -> str:
+    """Extract owner/repo from git remote origin."""
+    result = subprocess.run(
+        ["git", "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    url = result.stdout.strip()
+    # Handle SSH format: git@github.com:owner/repo.git
+    if url.startswith("git@"):
+        path = url.split(":")[-1]
+    # Handle HTTPS format: https://github.com/owner/repo.git
+    else:
+        path = "/".join(url.split("/")[-2:])
+    return path.removesuffix(".git")
 
 
 def list_skill_dirs(root: Path) -> list[str]:
+    """List all skill directories (non-hidden directories with SKILL.md)."""
     return sorted(
-        [
-            p.name
-            for p in root.iterdir()
-            if p.is_dir() and not p.name.startswith(".")
-        ]
+        p.name
+        for p in root.iterdir()
+        if p.is_dir() and not p.name.startswith(".") and (p / "SKILL.md").exists()
     )
 
 
 def parse_frontmatter(skill_md: Path) -> dict[str, str]:
+    """Parse YAML frontmatter from a SKILL.md file."""
     lines = skill_md.read_text().splitlines()
     if not lines or lines[0].strip() != "---":
         return {}
@@ -39,78 +62,49 @@ def parse_frontmatter(skill_md: Path) -> dict[str, str]:
     return data
 
 
-def build_skill_descriptions(root: Path, skill_names: list[str]) -> list[str]:
-    items: list[tuple[str, str]] = []
-    for name in skill_names:
-        frontmatter = parse_frontmatter(root / name / "SKILL.md")
-        item_name = frontmatter.get("name", name)
-        description = frontmatter.get("description", "").strip()
-        if description:
-            items.append((item_name, description))
-        else:
-            items.append((item_name, ""))
-
-    return [
-        f"- `{item_name}`: {description}".rstrip()
-        for item_name, description in items
+def build_skills_table(root: Path, skill_names: list[str], repo: str) -> list[str]:
+    """Build a markdown table of skills."""
+    lines = [
+        "| Skill | Description | Install Command |",
+        "|-------|-------------|-----------------|",
     ]
 
+    for name in skill_names:
+        frontmatter = parse_frontmatter(root / name / "SKILL.md")
+        skill_name = frontmatter.get("name", name)
+        description = frontmatter.get("description", "").strip()
+        install_cmd = f'`bunx skills add {repo} --skill "{skill_name}"`'
+        lines.append(f"| [{skill_name}]({name}) | {description} | {install_cmd} |")
 
-def update_readme(
-    readme_path: Path,
-    skill_names: list[str],
-    skill_bullets: list[str],
-) -> None:
-    lines = readme_path.read_text().splitlines()
+    return lines
 
-    try:
-        list_idx = lines.index("## List")
-    except ValueError as exc:
-        raise RuntimeError("Could not find '## List' heading in README.md") from exc
 
-    fence_start = None
-    for i in range(list_idx + 1, len(lines)):
-        if lines[i].strip().startswith("```"):
-            fence_start = i
-            break
+def update_readme(readme_path: Path, table_lines: list[str]) -> None:
+    """Update README.md with the generated table between markers."""
+    content = readme_path.read_text()
 
-    if fence_start is None:
-        raise RuntimeError("Could not find opening code fence after '## List'")
+    if TABLE_START not in content or TABLE_END not in content:
+        raise RuntimeError(
+            f"Could not find {TABLE_START} and {TABLE_END} markers in README.md"
+        )
 
-    fence_end = None
-    for i in range(fence_start + 1, len(lines)):
-        if lines[i].strip().startswith("```"):
-            fence_end = i
-            break
+    start_idx = content.index(TABLE_START) + len(TABLE_START)
+    end_idx = content.index(TABLE_END)
 
-    if fence_end is None:
-        raise RuntimeError("Could not find closing code fence after '## List'")
-
-    after_fence = fence_end + 1
-    next_heading = None
-    for i in range(after_fence, len(lines)):
-        if lines[i].startswith("## "):
-            next_heading = i
-            break
-
-    tail = lines[after_fence:] if next_heading is None else lines[next_heading:]
-    updated = (
-        lines[: fence_start + 1]
-        + skill_names
-        + lines[fence_end:fence_end + 1]
-        + [""]
-        + skill_bullets
-        + tail
+    new_content = (
+        content[:start_idx] + "\n" + "\n".join(table_lines) + "\n" + content[end_idx:]
     )
-    readme_path.write_text("\n".join(updated) + "\n")
+    readme_path.write_text(new_content)
 
 
 def main() -> None:
     root = Path.cwd()
     readme_path = root / "README.md"
+    repo = get_repo_name()
     skill_names = list_skill_dirs(root)
-    skill_bullets = build_skill_descriptions(root, skill_names)
-    update_readme(readme_path, skill_names, skill_bullets)
+    table_lines = build_skills_table(root, skill_names, repo)
+    update_readme(readme_path, table_lines)
+    print(f"Updated {readme_path} with {len(skill_names)} skills")
 
 
 if __name__ == "__main__":
