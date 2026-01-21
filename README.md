@@ -20,18 +20,39 @@ Install instructions (docs: [Claude Code Skills](https://code.claude.com/docs/en
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -R ./architecture-design-critique ./codebase-librarian ./gh-fix-ci ~/.claude/skills/
+ln -sfn "$PWD/architecture-design-critique" ~/.claude/skills/architecture-design-critique
+ln -sfn "$PWD/codebase-librarian" ~/.claude/skills/codebase-librarian
+ln -sfn "$PWD/gh-fix-ci" ~/.claude/skills/gh-fix-ci
 
 mkdir -p ~/.codex/skills
-cp -R ./architecture-design-critique ./codebase-librarian ./gh-fix-ci ~/.codex/skills/
+ln -sfn "$PWD/architecture-design-critique" ~/.codex/skills/architecture-design-critique
+ln -sfn "$PWD/codebase-librarian" ~/.codex/skills/codebase-librarian
+ln -sfn "$PWD/gh-fix-ci" ~/.codex/skills/gh-fix-ci
 ```
 
 ```bash
 mkdir -p .claude/skills
-cp -R ./architecture-design-critique ./codebase-librarian ./gh-fix-ci .claude/skills/
+ln -sfn "$PWD/architecture-design-critique" .claude/skills/architecture-design-critique
+ln -sfn "$PWD/codebase-librarian" .claude/skills/codebase-librarian
+ln -sfn "$PWD/gh-fix-ci" .claude/skills/gh-fix-ci
 
 mkdir -p .codex/skills
-cp -R ./architecture-design-critique ./codebase-librarian ./gh-fix-ci .codex/skills/
+ln -sfn "$PWD/architecture-design-critique" .codex/skills/architecture-design-critique
+ln -sfn "$PWD/codebase-librarian" .codex/skills/codebase-librarian
+ln -sfn "$PWD/gh-fix-ci" .codex/skills/gh-fix-ci
+```
+
+## Justfile
+
+This repo includes a `Justfile` with recipes to create the symlinks above. `just` is a small command runner (docs: [just.systems](https://just.systems)). If you manage dependencies with uv, add it as a dev dependency and note that uv is required for the script:
+
+```bash
+uv add --dev -- just
+```
+
+```bash
+just link
+just link-local
 ```
 
 ## Credits
