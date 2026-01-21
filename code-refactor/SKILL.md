@@ -31,7 +31,7 @@ Create a subfolder for the refactoring effort:
 For multi-component refactoring, create subfolders:
 ```
 {output-directory}/
-└── {effort-name}-refactor/
+└── {thread-name}-refactor/
     ├── component-a/
     │   ├── 01-research.md
     │   ├── 02-proposal.md
