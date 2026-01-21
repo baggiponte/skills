@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(uv run -- /Users/luca/.claude/plugins/cache/anthropic-agent-skills/example-skills/69c0b1a06741/skills/skill-creator/scripts/init_skill.py:*)",
-      "Bash(uv run --with=pyyaml -- /Users/luca/.claude/plugins/cache/anthropic-agent-skills/example-skills/69c0b1a06741/skills/skill-creator/scripts/package_skill.py:*)"
+      "Bash(uv run --with=pyyaml -- /Users/luca/.claude/plugins/cache/anthropic-agent-skills/example-skills/69c0b1a06741/skills/skill-creator/scripts/package_skill.py:*)",
+      "WebFetch(domain:developers.openai.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:support.claude.com)"
     ]
   },
   "enabledPlugins": {
