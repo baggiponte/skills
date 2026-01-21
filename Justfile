@@ -1,17 +1,8 @@
-set shell := ["/bin/sh", "-eu", "-c"]
-
-skill_dirs := "architecture-design-critique codebase-librarian gh-fix-ci"
-
 link:
-	mkdir -p ~/.claude/skills ~/.codex/skills
-	for d in {{skill_dirs}}; do \
-		ln -sfn "$PWD/$d" ~/.claude/skills/$d; \
-		ln -sfn "$PWD/$d" ~/.codex/skills/$d; \
-	done
-
-link-local:
-	mkdir -p .claude/skills .codex/skills
-	for d in {{skill_dirs}}; do \
-		ln -sfn "$PWD/$d" .claude/skills/$d; \
-		ln -sfn "$PWD/$d" .codex/skills/$d; \
-	done
+    #!/usr/bin/env bash
+    mkdir -p ~/.claude/skills ~/.codex/skills
+    skills=$(fd --type=directory --max-depth=1 --strip-cwd-prefix .)
+    for d in $skills; do
+      ln -sfn "$PWD/$d" "$HOME/.claude/skills/$d"
+      ln -sfn "$PWD/$d" "$HOME/.codex/skills/$d"
+    done
