@@ -17,8 +17,9 @@ Install with [skills](https://skills.sh/) by Vercel using `bunx` (or `npx`).
 Here are the skills I pre-installed with [skills](https://skills.sh/):
 
 ```sh
-bunx skills add vercel-labs/agent-browser --skill "agent-browser" --global --agent=claude-code --agent=codex
 bunx skills add anthropics/skills --skill="doc-coauthoring" --global --agent=claude-code --agent=codex
+bunx skills add vercel-labs/agent-browser --skill="agent-browser" --global --agent=claude-code --agent=codex
+bunx skills add https://github.com/intellectronica/agent-skills --skill="context7" --global --agent=claude-code --agent=codex
 
 bunx skills add anthropics/skills --skill="skill-creator" --global --agent=claude-code
 bunx skills add openai/skills --skill="skill-creator,create-plan" --global --agent=codex
