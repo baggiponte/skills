@@ -7,7 +7,6 @@ Install with [skills](https://skills.sh/) by Vercel using `bunx` (or `npx`).
 <!-- SKILLS_TABLE_START -->
 | Skill | Description | Install Command |
 |-------|-------------|-----------------|
-| [architecture-design-critique](architecture-design-critique) | Perform a codebase-wide architectural review through a Ports & Adapters (hexagonal architecture) lens. Assess boundary violations, coupling issues, and dependency direction. Produces a prioritized improvement roadmap. | `bunx skills add baggiponte/skills --skill "architecture-design-critique"` |
 | [codebase-librarian](codebase-librarian) | Create a comprehensive inventory of a codebase. Map structure, entry points, services, infrastructure, domain models, and data flows. Pure documentation—no opinions or recommendations. | `bunx skills add baggiponte/skills --skill "codebase-librarian"` |
 <!-- SKILLS_TABLE_END -->
 
