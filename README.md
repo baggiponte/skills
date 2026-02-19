@@ -8,6 +8,7 @@ Install with [skills](https://skills.sh/) by Vercel using `bunx` (or `npx`).
 | Skill | Description | Install Command |
 |-------|-------------|-----------------|
 | [codebase-librarian](codebase-librarian) | Create a comprehensive inventory of a codebase. Map structure, entry points, services, infrastructure, domain models, and data flows. Pure documentation—no opinions or recommendations. | `bunx skills add baggiponte/skills --skill "codebase-librarian"` |
+| [spark-context-curator](spark-context-curator) | Ultra-fast, read-only codebase exploration and context curation for GPT-5.3 Codex Spark. Use when you need deep repository understanding without modifying anything: architecture mapping, flow tracing, ownership discovery, incident/code-review prep, or implementation planning. Triggers on requests like "explore this codebase", "curate context", "map where X happens", "investigate before editing", or "read-only deep dive". | `bunx skills add baggiponte/skills --skill "spark-context-curator"` |
 <!-- SKILLS_TABLE_END -->
 
 ## Installation
