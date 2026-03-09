@@ -7,8 +7,7 @@ Install with [skills](https://skills.sh/) by Vercel using `bunx` (or `npx`).
 <!-- SKILLS_TABLE_START -->
 | Skill | Description | Install Command |
 |-------|-------------|-----------------|
-| [codebase-librarian](codebase-librarian) | Create a comprehensive inventory of a codebase. Map structure, entry points, services, infrastructure, domain models, and data flows. Pure documentation—no opinions or recommendations. | `bunx skills add baggiponte/skills --skill "codebase-librarian"` |
-| [spark-context-curator](spark-context-curator) | Ultra-fast, read-only codebase exploration and context curation for GPT-5.3 Codex Spark. Use when you need deep repository understanding without modifying anything: architecture mapping, flow tracing, ownership discovery, incident/code-review prep, or implementation planning. Triggers on requests like "explore this codebase", "curate context", "map where X happens", "investigate before editing", or "read-only deep dive". | `bunx skills add baggiponte/skills --skill "spark-context-curator"` |
+| [build-python-dockerfiles](build-python-dockerfiles) | Build production-ready Dockerfiles for Python projects that use uv. Use when creating or refactoring Dockerfiles for reproducible installs, cache-efficient builds, bytecode compilation, small runtime images, and non-root execution. Follows the production patterns from Hynek Schlawack's article "Production-ready Python Docker Containers with uv" while staying flexible about base images and app type. Supports packaged and unpackaged applications, including web apps, workers, and CLI services. Triggers on requests like "write a Dockerfile for this Python project", "optimize this uv Dockerfile", "containerize this FastAPI/Django/Flask app", "containerize this worker", or "split this into build and runtime stages". | `bunx skills add baggiponte/skills --skill "build-python-dockerfiles"` |
 <!-- SKILLS_TABLE_END -->
 
 ## Installation
