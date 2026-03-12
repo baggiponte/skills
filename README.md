@@ -8,6 +8,7 @@ Install with [skills](https://skills.sh/) by Vercel using `bunx` (or `npx`).
 | Skill | Description | Install Command |
 |-------|-------------|-----------------|
 | [build-python-dockerfiles](build-python-dockerfiles) | Build production-ready Dockerfiles for Python projects that use uv. Use when creating or refactoring Dockerfiles for reproducible installs, cache-efficient builds, bytecode compilation, small runtime images, and non-root execution. Follows the production patterns from Hynek Schlawack's article "Production-ready Python Docker Containers with uv" while staying flexible about base images and app type. Supports packaged and unpackaged applications, including web apps, workers, and CLI services. Triggers on requests like "write a Dockerfile for this Python project", "optimize this uv Dockerfile", "containerize this FastAPI/Django/Flask app", "containerize this worker", or "split this into build and runtime stages". | `bunx skills add baggiponte/skills --skill "build-python-dockerfiles"` |
+| [context7](context7) | Retrieve up-to-date documentation for software libraries, frameworks, and components via the Context7 CLI using `bunx ctx7`. Use this whenever you need current docs, API references, code examples, migration details, or verification for a library or framework instead of relying on training data. Triggers on requests like "look up the docs for X", "find the latest API for Y", "show me examples from the docs", "check the current React/Next.js/FastAPI docs", or "verify this library usage against current documentation". | `bunx skills add baggiponte/skills --skill "context7"` |
 <!-- SKILLS_TABLE_END -->
 
 ## Installation
@@ -18,7 +19,6 @@ Global skills:
 
 ```sh
 bunx skills add vercel-labs/agent-browser --skill="agent-browser" --global --agent=claude-code --agent=codex
-bunx skills add https://github.com/intellectronica/agent-skills --skill="context7" --global --agent=claude-code --agent=codex
 bunx skills add https://github.com/softaworks/agent-toolkit --skill="commit-work" --global --agent=claude-code --agent=codex
 ```
 
