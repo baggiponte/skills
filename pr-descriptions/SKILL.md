@@ -17,7 +17,7 @@ Scale the body to the change. A short summary can be the entire description. Kee
 
 Report testing only when it actually exercises the changed behavior or a consequential invariant. State the scenario and observed result, with the limits of what that establishes. Distinguish executed checks from proposed checks.
 
-Checks that miss that bar, and another model's approval, stay out of the body under any heading. For a skill or prompt, effectiveness requires observing its behavior on realistic tasks, not checking its packaging.
+Routine mechanical checks and another model's approval are not evidence that the change works. Leave those activities out of the body rather than relabeling them as validation, verification, or testing. For a skill or prompt, effectiveness requires observing its behavior on realistic tasks, not checking its packaging.
 
 State verification gaps that affect confidence. Otherwise, omit an unsupported testing section rather than adding ceremonial checks or a stock disclaimer.
 
