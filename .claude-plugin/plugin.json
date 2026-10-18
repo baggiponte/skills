@@ -1,0 +1,10 @@
+{
+  "name": "baggiponte-skills",
+  "description": "Personal skills for coding agents.",
+  "skills": [
+    "./bespoke-html",
+    "./build-python-dockerfiles",
+    "./pr-descriptions",
+    "./simplification-review"
+  ]
+}
