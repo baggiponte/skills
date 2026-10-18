@@ -21,10 +21,20 @@ Routine mechanical checks and another model's approval are not evidence that the
 
 State verification gaps that affect confidence. Otherwise, omit an unsupported testing section rather than adding ceremonial checks or a stock disclaimer.
 
+## Show the behavior
+
+Include a before/after comparison or a demo of the new feature when a visual or behavioral change is easier to judge by seeing it. Keep inputs, data, and framing consistent across comparisons. Use the lightest format that makes the change clear: screenshots for static differences, a short recording for interactions, or sample input/output for non-visual behavior. Choose capture tools to suit the task; browser automation is optional.
+
+Capture the actual behavior, label what each item shows, and include it in the description. After publishing, confirm that reviewers can view the evidence, including in private repositories; use durable links rather than local paths or expiring URLs. Skip media when text conveys the change equally well.
+
 ## Prune before publishing
 
 Apply this filter to every sentence:
 
 > What reviewer decision does this sentence support? If removing it hides no important intent, consequence, risk, or evidence, delete it.
 
-Finish when every retained sentence serves a reviewer decision and every confidence claim is supported by what was actually observed.
+The body is ready when every retained sentence and evidence item serves a reviewer decision, and every confidence claim is supported by what was actually observed.
+
+## Assign the PR
+
+When opening a PR or MR, assign it to the authenticated user unless the user requests another assignee. On GitHub, use `--assignee @me`; elsewhere, resolve the current account through the platform’s CLI or API. Verify the assignee on the created PR or MR. If account resolution or assignment fails, report it rather than guessing or silently leaving it unassigned.
