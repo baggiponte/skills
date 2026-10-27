@@ -27,6 +27,8 @@ Include a before/after comparison or a demo of the new feature when a visual or 
 
 Capture the actual behavior, label what each item shows, and include it in the description. After publishing, confirm that reviewers can view the evidence, including in private repositories; use durable links rather than local paths or expiring URLs. Skip media when text conveys the change equally well.
 
+On GitHub, upload media with `--attach` on `gh pr create`, `gh pr edit` or `gh pr comment` (gh 2.99 or later), never by committing it to the branch. Reference each file by its local path in the body, then pass it as `--attach ./after.png` (alt text after `#` applies only to files the body does not reference): gh uploads it to GitHub's own attachment storage and rewrites the path in place; attached files the body does not reference are appended at the end. Limits: 50 files per command, 10 MiB per image, video (mp4, mov, webm) renders as a player with a plan-dependent size cap. Uploads are permanent and cannot be deleted, so attach only final media. It needs write access to the repository, does not work on GitHub Enterprise Server, and fails from Claude Code cloud sessions, whose GitHub proxy rejects binary uploads; there, hand the files to the user instead. On a partial failure gh keeps the successful uploads and exits non-zero, so check the exit code and re-read the body.
+
 ## Prune before publishing
 
 Apply this filter to every sentence:
