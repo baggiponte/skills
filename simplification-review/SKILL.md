@@ -10,7 +10,7 @@ Optimize for the smallest **maintenance surface**, not the fewest lines. Surface
 
 ## 1. Establish the scope
 
-Follow the user's scope: a codebase, a diff, or its tests. Inspect repository guidance, requirements, entrypoints, dependencies, CI, and representative data. Trace the relevant producers and consumers, including external interfaces; absence of a checked-in caller does not prove something is unused.
+Follow the user's scope: a codebase, a diff, or its tests. Inspect repository guidance, requirements (including the artifacts of an originating GitHub issue: `gh issue artifact list <issue>`), entrypoints, dependencies, CI, and representative data. Trace the relevant producers and consumers, including external interfaces; absence of a checked-in caller does not prove something is unused.
 
 Distinguish existing behavior, documented requirements, and assumptions. Tests describe what the code currently enforces, not necessarily what the product needs. Finish with the behavior being protected and the evidence for it identified; mark uncertain consumers explicitly.
 
@@ -63,3 +63,5 @@ Finish when each changed behavior is authorized and each new abstraction or depe
 Run the relevant existing checks. For behavior-preserving work, compare consequential outputs against the baseline, using representative real data where available. Add or strengthen tests only for plausible regressions introduced or exposed by the change; use disposable checks for one-off investigation.
 
 Report file paths, what maintenance surface disappeared, intentional behavior changes, verification results, and remaining uncertainty. Line counts can describe a diff, but are not evidence of simplification. Stop when the real workflow is protected and the unnecessary obligations are gone—not when another speculative case could be covered.
+
+When the review is scoped to a GitHub issue and the user wants the findings kept with it, attach the final report as a Markdown artifact on that issue instead of a long comment.
