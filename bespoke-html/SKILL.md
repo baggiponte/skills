@@ -51,3 +51,5 @@ Finish when the user can access the workspace and knows how to return answers.
 Separate explicit answers and corrections from untouched or unresolved items. A prefilled value is a proposal, not a confirmed answer. Apply answers only within the original task's authorization; choices in a form grant no blanket permission to modify files, commit, publish, or deploy.
 
 Finish when each returned item has been handled under that authorization or listed back as open, without substituting the agent's recommendation for the user's answer.
+
+When the task belongs to a GitHub issue and the user agrees to record the outcome there, attach the final exported decisions as a Markdown artifact (`gh issue artifact create <issue> decisions.md --name '…'`). Attach the page itself as an `embedded_html` artifact only when later readers need it, and strip local paths and private evidence first.
