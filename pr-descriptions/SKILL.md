@@ -7,6 +7,12 @@ description: Write or revise pull request and merge request bodies as reviewer d
 
 A PR description is **decision support, not an activity log**. Include information that helps a reviewer understand the intent, assess consequences, or judge confidence in the change.
 
+## Keep two levels
+
+The first level is what the reviewer reads: the intent and the layers needed to review it. Follow the template and the `/show-me` views of the `visual-pr` skill for it (Why the change, Special things to note, Change outline), with the visuals first. Use only its template and views, not its workflow: do not commit, push or save files under `.humanlayer/` because of it.
+
+The second level is the record of how the design was reached, and it stays light. Add one collapsed `<details><summary>Designs considered</summary>` block after the first level when there was more than one reasonable way to make the change: one line per option with its main pro and con, then one sentence on why the chosen one won. Anything longer, such as an explainer, a comparison page or a prototype, goes in an attachment or an HTML file linked from that block, never in the body.
+
 ## Explain the change
 
 Read the actual change and its originating request before drafting. When the PR closes a GitHub issue, list the issue's artifacts (`gh issue artifact list <issue> --json number,name,type,url`) and read the ones that explain its intent. Link only the final plan or research the change implements, never intermediate drafts, rather than restating it. Explain why it is needed, important behavior changes, and non-obvious trade-offs. Include risks or compatibility consequences when they affect the reviewer's decision.
@@ -17,7 +23,7 @@ Scale the body to the change. A short summary can be the entire description. Kee
 
 Report testing only when it actually exercises the changed behavior or a consequential invariant. State the scenario and observed result, with the limits of what that establishes. Distinguish executed checks from proposed checks.
 
-Routine mechanical checks and another model's approval are not evidence that the change works. Leave those activities out of the body rather than relabeling them as validation, verification, or testing. For a skill or prompt, effectiveness requires observing its behavior on realistic tasks, not checking its packaging.
+Routine mechanical checks and another model's approval are not evidence that the change works. Never list lint, format, typecheck or test-suite runs, least of all those CI or pre-commit hooks already run. Leave those activities out of the body rather than relabeling them as validation, verification, or testing. For a skill or prompt, effectiveness requires observing its behavior on realistic tasks, not checking its packaging.
 
 State verification gaps that affect confidence. Otherwise, omit an unsupported testing section rather than adding ceremonial checks or a stock disclaimer.
 
