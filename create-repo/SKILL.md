@@ -29,10 +29,9 @@ GitHub cannot protect a repository at creation time: `gh repo create` has no rul
 
 No branch deletion, no force pushes, signed commits, linear history, and changes through pull requests merged by squash with no required approvals. The repository Admin role (`actor_id: 5`) can always bypass it.
 
-## Added later, not at creation
+## Required status checks, added later
 
-- **Required status checks.** A new repository has no CI yet, so required checks would block every pull request. Once its workflows have run, offer to add them: GET the ruleset, append a `required_status_checks` rule whose contexts are the job names (`integration_id: 15368` is GitHub Actions), and PUT it back to `repos/OWNER/NAME/rulesets/<id>`.
-- **Merge queue.** GitHub offers a `merge_queue` rule only on repositories owned by an organization. Add it only for those, the same way as status checks.
+A new repository has no CI yet, so required checks would block every pull request. Once its workflows have run, offer to add them: GET the ruleset, append a `required_status_checks` rule whose contexts are the job names (`integration_id: 15368` is GitHub Actions), and PUT it back to `repos/OWNER/NAME/rulesets/<id>`.
 
 ## Failures
 
