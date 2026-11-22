@@ -4,6 +4,7 @@
   "skills": [
     "./bespoke-html",
     "./build-python-dockerfiles",
+    "./create-repo",
     "./pr-descriptions",
     "./simplification-review"
   ]
